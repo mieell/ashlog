@@ -17,16 +17,16 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
-const fadeInUp = {
+const fadeInUp: any = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
 };
 
-const stagger = {
+const stagger: any = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-const scaleIn = {
+const scaleIn: any = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
