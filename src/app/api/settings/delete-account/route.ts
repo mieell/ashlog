@@ -27,8 +27,6 @@ export async function DELETE() {
       prisma.cycleData.deleteMany({ where: { userId } }),
       prisma.insight.deleteMany({ where: { userId } }),
       prisma.userSettings.deleteMany({ where: { userId } }),
-      prisma.account.deleteMany({ where: { userId } }),
-      prisma.session.deleteMany({ where: { userId } }),
       prisma.user.delete({ where: { id: userId } }),
     ]);
 
