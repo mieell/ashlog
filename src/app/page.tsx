@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import styles from "./page.module.css";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -44,6 +45,9 @@ export default function LandingPage() {
             <a href="#features">Features</a>
             <a href="#intelligence">Intelligence</a>
             <a href="#privacy">Privacy</a>
+            <div style={{ marginLeft: "0.5rem", marginRight: "0.5rem" }}>
+              <ThemeToggle />
+            </div>
             <Link href="/login" className="btn btn-primary btn-sm">
               Sign In
             </Link>

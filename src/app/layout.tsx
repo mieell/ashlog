@@ -47,6 +47,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${dmSerif.variable} ${inter.variable} ${dmMono.variable}`}
+      suppressHydrationWarning
     >
       <body>
         <Providers>{children}</Providers>
