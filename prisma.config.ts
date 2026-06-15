@@ -1,17 +1,20 @@
 import path from "node:path";
 import { defineConfig } from "prisma/config";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const DATABASE_URL = process.env.DATABASE_URL ?? "postgresql://postgres.yhdgnwzttihiinhofgoy:MIelpogi12%21@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres";
 
 export default defineConfig({
   earlyAccess: true,
   schema: path.join(__dirname, "prisma", "schema.prisma"),
   datasource: {
-    url: "file:./prisma/dev.db",
+    url: DATABASE_URL,
   },
   migrate: {
     async adapter() {
-      const { PrismaBetterSqlite3 } = await import("@prisma/adapter-better-sqlite3");
-      const url = "file:./prisma/dev.db";
-      return new PrismaBetterSqlite3({ url });
+      const pool = new Pool({ connectionString: DATABASE_URL });
+      return new PrismaPg(pool);
     },
   },
 });
