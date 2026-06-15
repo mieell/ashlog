@@ -1,0 +1,146 @@
+// AshLog — Prisma Schema
+// Module registry pattern: extensible metadata JSON fields on all models
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  pin          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  periodLogs     PeriodLog[]
+  symptomLogs    SymptomLog[]
+  sleepLogs      SleepLog[]
+  moodLogs       MoodLog[]
+  journalEntries JournalEntry[]
+  cycleData      CycleData[]
+  insights       Insight[]
+  settings       UserSettings?
+}
+
+model UserSettings {
+  id             String  @id @default(cuid())
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appLockEnabled Boolean @default(false)
+  enabledModules String  @default("[]")
+  metadata       String  @default("{}")
+}
+
+model PeriodLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime
+  flow      String   // spotting | light | medium | heavy
+  startDate DateTime?
+  endDate   DateTime?
+  clotting  Boolean  @default(false)
+  cramping  Int?     // 1-5
+  notes     String?
+  metadata  String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model SymptomLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime
+  symptoms  String   // JSON: [{name, severity}]
+  timeOfDay String?  // morning | afternoon | evening | night
+  notes     String?
+  metadata  String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model SleepLog {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime
+  bedtime         DateTime
+  wakeTime        DateTime
+  durationMinutes Int?
+  quality         Int      // 1-5
+  disturbances    String   @default("[]")
+  freshness       Int?     // 1-5
+  metadata        String   @default("{}")
+  createdAt       DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model MoodLog {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date     DateTime
+  mood     String   // happy | calm | anxious | irritable | sad | energized | tired | overwhelmed
+  energy   Int?     // 1-5
+  stress   Int?     // 1-5
+  notes    String?
+  metadata String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model JournalEntry {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       DateTime
+  content    String
+  moodTag    String?
+  symptomTag String?
+  isPrivate  Boolean  @default(true)
+  metadata   String   @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([userId, date])
+}
+
+model CycleData {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cycleNumber Int
+  startDate   DateTime
+  endDate     DateTime?
+  lengthDays  Int?
+  phase       String?   // menstrual | follicular | ovulation | luteal
+  metadata    String    @default("{}")
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, startDate])
+}
+
+model Insight {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   // cycle_sleep | wellness | pattern
+  title       String
+  description String
+  dataPoints  Int
+  confidence  Float?
+  metadata    String   @default("{}")
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

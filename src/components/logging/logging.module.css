@@ -1,0 +1,247 @@
+/* ═══════════════════════════════════════════════════════════════
+   Logging Form Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-bottom: var(--space-6);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fieldLabel {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fieldValue {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.fieldHint {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* ── Chip Grid ── */
+.chipGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+
+.chipGridWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ── Sliders ── */
+.sliderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  background: var(--color-surface);
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-light);
+}
+
+.sliderDot {
+  flex: 1;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.sliderDot:hover {
+  background: var(--color-surface-hover);
+}
+
+.sliderDotActive {
+  background: var(--color-primary);
+  color: white;
+}
+
+.sliderDotStressActive {
+  background: var(--color-danger);
+  color: white;
+}
+
+.sliderLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: -4px;
+}
+
+/* ── Emoji Selector ── */
+.emojiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+
+.emojiButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-1);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.emojiButton:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border-light);
+}
+
+.emojiActive {
+  background: var(--color-primary-lighter);
+  border-color: var(--color-primary-light);
+}
+
+.emojiIcon {
+  font-size: var(--text-3xl);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.emojiButton:hover .emojiIcon {
+  transform: scale(1.1);
+}
+
+.emojiLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* ── Sleep Form Specifics ── */
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.timeField {
+  flex: 1;
+}
+
+.timeDuration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.durationValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.durationLabel {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.starRow {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.star {
+  font-size: 32px;
+  background: transparent;
+  border: none;
+  color: var(--color-border-light);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+
+.star:hover {
+  transform: scale(1.1);
+}
+
+.starActive {
+  color: #F59E0B; /* Amber/gold */
+}
+
+/* ── Symptom Form Specifics ── */
+.severityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+}
+
+.severityRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@media (min-width: 480px) {
+  .severityRow {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.severityName {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.severityChips {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* ── Form Actions ── */
+.formActions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.formActions button {
+  flex: 1;
+}
