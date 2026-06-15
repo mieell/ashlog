@@ -32,6 +32,7 @@ export async function POST(req: Request) {
       { message: "User registered successfully", user: { id: user.id, email: user.email, name: user.name } },
       { status: 201 }
     );
+  } catch (error) {
     console.error("Registration error:", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json({ message: `Database Error: ${errorMessage}` }, { status: 500 });
