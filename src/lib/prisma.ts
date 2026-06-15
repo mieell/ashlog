@@ -10,7 +10,7 @@ function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL!;
   const pool = new Pool({ 
     connectionString,
-    ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : undefined
+    ssl: { rejectUnauthorized: false }
   });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
