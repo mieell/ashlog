@@ -19,6 +19,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 
 // ── Log Form Components ──
@@ -64,11 +65,13 @@ export default function DashboardClient({
   const [activeLog, setActiveLog] = useState<LogType>(null);
   const [showAsh, setShowAsh] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   function handleLogSave(type: string) {
     setActiveLog(null);
     setToastMessage(`${type} logged successfully ✓`);
     setTimeout(() => setToastMessage(null), 3000);
+    router.refresh();
   }
 
   return (
@@ -212,7 +215,6 @@ export default function DashboardClient({
               <div className={styles.emptyCardContent}>
                 <Moon size={24} color="var(--color-text-muted)" />
                 <p>No sleep data</p>
-                <button className={styles.logActionLink} onClick={() => setActiveLog("sleep")}>Log Sleep</button>
               </div>
             )}
           </div>
@@ -239,7 +241,6 @@ export default function DashboardClient({
               <div className={styles.emptyCardContent}>
                 <Heart size={24} color="var(--color-text-muted)" />
                 <p>How are you feeling?</p>
-                <button className={styles.logActionLink} onClick={() => setActiveLog("mood")}>Log Mood</button>
               </div>
             )}
           </div>
@@ -511,13 +512,7 @@ export default function DashboardClient({
         )}
       </AnimatePresence>
 
-      {/* ── FAB for mobile ── */}
-      <button
-        className={styles.fab}
-        onClick={() => setActiveLog("period")}
-      >
-        <Plus size={24} />
-      </button>
+
     </div>
   );
 }
