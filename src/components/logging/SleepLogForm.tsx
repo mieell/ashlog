@@ -24,6 +24,7 @@ export default function SleepLogForm({ onSave, onSkip }: SleepLogFormProps) {
   const [freshness, setFreshness] = useState(3);
   const [disturbances, setDisturbances] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function toggleDisturbance(item: string) {
     setDisturbances((prev) =>
@@ -43,6 +44,7 @@ export default function SleepLogForm({ onSave, onSkip }: SleepLogFormProps) {
 
   async function handleSave() {
     setSaving(true);
+    setError(null);
     const today = new Date();
     const [bh, bm] = bedtime.split(":").map(Number);
     const [wh, wm] = wakeTime.split(":").map(Number);
@@ -55,7 +57,7 @@ export default function SleepLogForm({ onSave, onSkip }: SleepLogFormProps) {
     wakeDate.setHours(wh, wm, 0, 0);
 
     try {
-      await fetch("/api/sleep", {
+      const response = await fetch("/api/sleep", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -67,8 +69,15 @@ export default function SleepLogForm({ onSave, onSkip }: SleepLogFormProps) {
           date: new Date().toISOString(),
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || "Failed to save sleep log.");
+      }
+
       onSave();
-    } catch {
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
       setSaving(false);
     }
   }
@@ -159,6 +168,7 @@ export default function SleepLogForm({ onSave, onSkip }: SleepLogFormProps) {
       </div>
 
       {/* Actions */}
+      {error && <div className={styles.errorMessage}>{error}</div>}
       <div className={styles.formActions}>
         <button className="btn btn-ghost" onClick={onSkip} type="button">
           Skip

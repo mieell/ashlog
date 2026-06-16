@@ -16,17 +16,28 @@ export default function JournalForm({ onSave, onSkip }: JournalFormProps) {
   const [moodTag, setMoodTag] = useState("");
   const [symptomTag, setSymptomTag] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSave() {
     setSaving(true);
+    setError(null);
     try {
-      await fetch("/api/journal", {
+      const response = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content, moodTag: moodTag || null, symptomTag: symptomTag || null, date: new Date().toISOString() }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || "Failed to save journal entry.");
+      }
+
       onSave();
-    } catch { setSaving(false); }
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
+      setSaving(false);
+    }
   }
 
   return (
@@ -47,6 +58,7 @@ export default function JournalForm({ onSave, onSkip }: JournalFormProps) {
           {SYMPTOM_TAGS.map((tag) => (<button key={tag} className={`chip ${symptomTag === tag ? "active" : ""}`} onClick={() => setSymptomTag(symptomTag === tag ? "" : tag)} type="button">{tag}</button>))}
         </div>
       </div>
+      {error && <div className={styles.errorMessage}>{error}</div>}
       <div className={styles.formActions}>
         <button className="btn btn-ghost" onClick={onSkip} type="button">Skip</button>
         <button className="btn btn-primary" onClick={handleSave} disabled={saving || !content.trim()} type="button">{saving ? "Saving..." : "Save Entry"}</button>

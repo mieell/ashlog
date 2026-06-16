@@ -31,6 +31,7 @@ export default function SymptomLogForm({ onSave, onSkip }: SymptomLogFormProps) 
   const [timeOfDay, setTimeOfDay] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function toggleSymptom(symptom: string) {
     setSelected((prev) => {
@@ -50,12 +51,13 @@ export default function SymptomLogForm({ onSave, onSkip }: SymptomLogFormProps) 
 
   async function handleSave() {
     setSaving(true);
+    setError(null);
     const symptoms = Object.entries(selected).map(([name, severity]) => ({
       name,
       severity,
     }));
     try {
-      await fetch("/api/symptoms", {
+      const response = await fetch("/api/symptoms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -65,8 +67,15 @@ export default function SymptomLogForm({ onSave, onSkip }: SymptomLogFormProps) 
           date: new Date().toISOString(),
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || "Failed to save symptom log.");
+      }
+
       onSave();
-    } catch {
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
       setSaving(false);
     }
   }
@@ -161,6 +170,7 @@ export default function SymptomLogForm({ onSave, onSkip }: SymptomLogFormProps) 
       </div>
 
       {/* Actions */}
+      {error && <div className={styles.errorMessage}>{error}</div>}
       <div className={styles.formActions}>
         <button className="btn btn-ghost" onClick={onSkip} type="button">
           Skip

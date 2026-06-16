@@ -25,11 +25,13 @@ export default function MoodLogForm({ onSave, onSkip }: MoodLogFormProps) {
   const [stress, setStress] = useState(3);
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSave() {
     setSaving(true);
+    setError(null);
     try {
-      await fetch("/api/mood", {
+      const response = await fetch("/api/mood", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -40,8 +42,15 @@ export default function MoodLogForm({ onSave, onSkip }: MoodLogFormProps) {
           date: new Date().toISOString(),
         }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || "Failed to save mood log.");
+      }
+
       onSave();
-    } catch {
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred.");
       setSaving(false);
     }
   }
@@ -127,6 +136,7 @@ export default function MoodLogForm({ onSave, onSkip }: MoodLogFormProps) {
       </div>
 
       {/* Actions */}
+      {error && <div className={styles.errorMessage}>{error}</div>}
       <div className={styles.formActions}>
         <button className="btn btn-ghost" onClick={onSkip} type="button">
           Skip

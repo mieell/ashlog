@@ -21,11 +21,13 @@ export default function PeriodLogForm({ onSave, onSkip }: PeriodLogFormProps) {
   const [cramping, setCramping] = useState(0);
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSave() {
     setSaving(true);
+    setError(null);
     try {
-      await fetch("/api/period", {
+      const res = await fetch("/api/period", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -36,14 +38,21 @@ export default function PeriodLogForm({ onSave, onSkip }: PeriodLogFormProps) {
           date: new Date().toISOString(),
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Save failed (${res.status})`);
+      }
       onSave();
-    } catch {
+    } catch (err: any) {
+      setError(err.message || "Failed to save. Please try again.");
       setSaving(false);
     }
   }
 
   return (
     <div className={styles.form}>
+      {error && <div className={styles.formError}>{error}</div>}
+
       {/* Flow Selection — primary required field */}
       <div className={styles.fieldGroup}>
         <label className={styles.fieldLabel}>Flow Intensity</label>
