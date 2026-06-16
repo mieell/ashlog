@@ -57,23 +57,26 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  background: var(--color-primary-lighter);
-  backdrop-filter: blur(8px);
+  background: var(--color-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--color-primary);
   border: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-glass-highlight);
   border-radius: var(--radius-full);
   font-family: var(--font-body);
   font-size: var(--text-sm);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-spring);
+  box-shadow: var(--shadow-sm);
 }
 
 .ashButton:hover {
-  background: var(--color-primary-light);
+  background: var(--color-primary-lighter);
   color: var(--color-primary-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), 0 0 0 1px var(--color-primary-light);
 }
 
 /* ── Main ── */
@@ -118,21 +121,40 @@
 
 .summaryCard {
   background: var(--color-surface-subtle);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--color-glass-highlight);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-spring);
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.summaryCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: skewX(-20deg);
+  transition: all 0.6s ease;
+}
+
+.summaryCard:hover::before {
+  left: 150%;
 }
 
 .summaryCard:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--color-primary-light);
+  transform: translateY(-4px) scale(1.02);
   background: var(--color-surface);
 }
 
@@ -227,20 +249,21 @@
   background: linear-gradient(135deg, var(--color-danger), #FF758F);
   color: white;
   border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 50%;
   width: 120px;
   height: 120px;
   justify-content: center;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-spring);
+  transition: all var(--duration-normal) var(--ease-spring);
   font-weight: 600;
   margin-bottom: var(--space-2);
-  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4), inset 0 -4px 12px rgba(0,0,0,0.1);
 }
 
 .logPeriodBtn:hover {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 12px 32px rgba(239, 68, 68, 0.4);
+  transform: scale(1.08) translateY(-4px);
+  box-shadow: 0 16px 32px rgba(239, 68, 68, 0.5), inset 0 -2px 6px rgba(0,0,0,0.1);
 }
 
 .logPeriodBtn svg {
@@ -440,14 +463,16 @@
   gap: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--color-glass-highlight);
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-spring);
   cursor: pointer;
 }
 
 .upcomingItem:hover {
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md), 0 0 0 1px var(--color-primary-light);
+  transform: translateY(-2px) scale(1.01);
 }
 
 .upcomingIcon {
@@ -521,14 +546,16 @@
   gap: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--color-glass-highlight);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-spring);
 }
 
 .insightRow:hover {
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   border-color: var(--color-primary-light);
+  transform: translateY(-2px);
 }
 
 .insightRowEmoji {
@@ -574,15 +601,17 @@
   padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--color-glass-highlight);
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-spring);
   font-family: var(--font-body);
 }
 
 .actionButton:hover {
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), 0 0 0 1px var(--color-primary-light);
+  transform: translateY(-4px) scale(1.03);
+  background: var(--color-surface-elevated);
 }
 
 .actionButton:active {
