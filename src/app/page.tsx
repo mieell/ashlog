@@ -164,17 +164,13 @@ export default function LandingPage() {
       <section className={styles.socialProof}>
         <div className={styles.proofInner}>
           <div className={styles.proofItem}>
-            <span className={styles.proofValue}>50,000+</span>
-            <span className={styles.proofLabel}>Women Trust AshLog</span>
+            <Heart size={18} className={styles.proofShield} />
+            <span className={styles.proofLabel}>Built with Care</span>
           </div>
           <div className={styles.proofDivider} />
           <div className={styles.proofItem}>
-            <div className={styles.proofStars}>
-              {[1, 2, 3, 4, 5].map((i) => (
-                <Star key={i} size={14} fill="#F59E0B" stroke="#F59E0B" />
-              ))}
-            </div>
-            <span className={styles.proofLabel}>4.9 on App Store</span>
+            <Sparkles size={18} className={styles.proofShield} />
+            <span className={styles.proofLabel}>Personalized AI Insights</span>
           </div>
           <div className={styles.proofDivider} />
           <div className={styles.proofItem}>
