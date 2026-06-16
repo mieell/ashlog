@@ -83,16 +83,36 @@ When interpreting their data, be conversational and helpful. Focus on the relati
 
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
-      systemInstruction: systemPrompt 
+      systemInstruction: systemPrompt,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+      }
     });
 
-    const formattedHistory = messages.slice(0, -1).map((m: any) => ({
+    let normalizedHistory: any[] = [];
+    const rawHistory = messages.slice(0, -1).map((m: any) => ({
       role: m.role === "user" ? "user" : "model",
       parts: [{ text: m.content || "" }],
     }));
 
+    for (const msg of rawHistory) {
+      if (normalizedHistory.length > 0 && normalizedHistory[normalizedHistory.length - 1].role === msg.role) {
+        normalizedHistory[normalizedHistory.length - 1].parts[0].text += "\n" + msg.parts[0].text;
+      } else {
+        normalizedHistory.push(msg);
+      }
+    }
+
+    if (normalizedHistory.length > 0 && normalizedHistory[0].role === "model") {
+      normalizedHistory.unshift({
+        role: "user",
+        parts: [{ text: "Hello" }],
+      });
+    }
+
     const chat = model.startChat({
-      history: formattedHistory,
+      history: normalizedHistory,
     });
 
     const result = await chat.sendMessage(question);
