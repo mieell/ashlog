@@ -6,6 +6,7 @@ import styles from "./logging.module.css";
 interface SleepLogFormProps {
   onSave: () => void;
   onSkip: () => void;
+  selectedDate?: Date;
 }
 
 const DISTURBANCE_OPTIONS = [
@@ -17,7 +18,7 @@ const DISTURBANCE_OPTIONS = [
   "Pain",
 ];
 
-export default function SleepLogForm({ onSave, onSkip }: SleepLogFormProps) {
+export default function SleepLogForm({ onSave, onSkip, selectedDate = new Date() }: SleepLogFormProps) {
   const [bedtime, setBedtime] = useState("22:30");
   const [wakeTime, setWakeTime] = useState("06:30");
   const [quality, setQuality] = useState(3);
@@ -66,7 +67,7 @@ export default function SleepLogForm({ onSave, onSkip }: SleepLogFormProps) {
           quality,
           freshness,
           disturbances,
-          date: new Date().toISOString(),
+          date: selectedDate.toISOString(),
         }),
       });
 

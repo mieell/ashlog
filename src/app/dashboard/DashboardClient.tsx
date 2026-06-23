@@ -30,6 +30,7 @@ import MoodLogForm from "@/components/logging/MoodLogForm";
 import JournalForm from "@/components/logging/JournalForm";
 import AshChat from "@/components/ash/AshChat";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import CalendarWidget from "@/components/dashboard/CalendarWidget";
 
 type LogType = "period" | "symptoms" | "sleep" | "mood" | "journal" | null;
 
@@ -51,6 +52,7 @@ interface DashboardProps {
   lastSleep: any;
   lastMood: any;
   insights: any[];
+  periodLogs: any[];
   daysSincePeriod: number | null;
 }
 
@@ -60,12 +62,23 @@ export default function DashboardClient({
   lastSleep,
   lastMood,
   insights,
+  periodLogs = [],
   daysSincePeriod,
 }: DashboardProps) {
   const [activeLog, setActiveLog] = useState<LogType>(null);
   const [showAsh, setShowAsh] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const router = useRouter();
+
+  // Find the most recent period log that occurred ON OR BEFORE the selected date
+  const relevantPeriodLog = periodLogs?.find(
+    (log) => new Date(log.date).getTime() <= selectedDate.getTime()
+  );
+
+  const activeDaysSincePeriod = relevantPeriodLog
+    ? Math.floor((selectedDate.getTime() - new Date(relevantPeriodLog.date).getTime()) / (1000 * 60 * 60 * 24))
+    : null;
 
   function handleLogSave(type: string) {
     setActiveLog(null);
@@ -114,13 +127,25 @@ export default function DashboardClient({
         >
           <h1>Good morning ☀️</h1>
           <p className={styles.greetingDate}>
-            {new Date().toLocaleDateString("en-US", {
+            {selectedDate.toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
               day: "numeric",
             })}
           </p>
         </motion.div>
+
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+        >
+          <CalendarWidget 
+            selectedDate={selectedDate} 
+            onSelectDate={setSelectedDate} 
+            periodLogs={periodLogs} 
+          />
+        </motion.section>
 
         {/* ── Cycle Hero (Flo-style) ── */}
         <motion.section
@@ -130,7 +155,7 @@ export default function DashboardClient({
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <div className={styles.cycleHeroRingContainer}>
-            {daysSincePeriod !== null ? (
+            {activeDaysSincePeriod !== null ? (
               <>
                 <svg viewBox="0 0 200 200" className={styles.cycleHeroSvg}>
                   <circle cx="100" cy="100" r="90" fill="none" stroke="var(--color-border-light)" strokeWidth="12" />
@@ -140,7 +165,7 @@ export default function DashboardClient({
                     stroke="var(--color-primary)"
                     strokeWidth="12"
                     strokeDasharray="565.48"
-                    strokeDashoffset={565.48 * (1 - Math.min(daysSincePeriod / 28, 1))}
+                    strokeDashoffset={565.48 * (1 - Math.min(activeDaysSincePeriod / 28, 1))}
                     strokeLinecap="round"
                     transform="rotate(-90 100 100)"
                     className={styles.cycleHeroProgress}
@@ -148,9 +173,9 @@ export default function DashboardClient({
                 </svg>
                 <div className={styles.cycleHeroCenter}>
                   <span className={styles.cycleHeroDayLabel}>Day</span>
-                  <span className={styles.cycleHeroDayNum}>{daysSincePeriod}</span>
+                  <span className={styles.cycleHeroDayNum}>{activeDaysSincePeriod}</span>
                   <div className={styles.cycleHeroPhaseBadge}>
-                    {daysSincePeriod > 14 ? "Luteal Phase" : "Follicular Phase"}
+                    {activeDaysSincePeriod > 14 ? "Luteal Phase" : "Follicular Phase"}
                   </div>
                 </div>
               </>
@@ -284,11 +309,11 @@ export default function DashboardClient({
               <div className={styles.upcomingIcon} style={{ background: "var(--color-danger-light)", color: "var(--color-danger-dark)" }}>
                 <Droplets size={18} />
               </div>
-              {daysSincePeriod !== null ? (
+              {activeDaysSincePeriod !== null ? (
                 <>
                   <div className={styles.upcomingInfo}>
                     <span className={styles.upcomingLabel}>Next Period</span>
-                    <span className={styles.upcomingValue}>{Math.max(28 - daysSincePeriod, 0)} days away</span>
+                    <span className={styles.upcomingValue}>{Math.max(28 - activeDaysSincePeriod, 0)} days away</span>
                   </div>
                   <ChevronRight size={16} className={styles.upcomingChevron} />
                 </>
@@ -303,11 +328,11 @@ export default function DashboardClient({
               <div className={styles.upcomingIcon} style={{ background: "var(--color-accent-light)", color: "var(--color-accent-deep)" }}>
                 <Heart size={18} />
               </div>
-              {daysSincePeriod !== null ? (
+              {activeDaysSincePeriod !== null ? (
                 <>
                   <div className={styles.upcomingInfo}>
                     <span className={styles.upcomingLabel}>Ovulation Window</span>
-                    <span className={styles.upcomingValue}>In {Math.max(14 - daysSincePeriod, 0)} days</span>
+                    <span className={styles.upcomingValue}>In {Math.max(14 - activeDaysSincePeriod, 0)} days</span>
                   </div>
                   <ChevronRight size={16} className={styles.upcomingChevron} />
                 </>
@@ -474,19 +499,19 @@ export default function DashboardClient({
               </div>
 
               {activeLog === "period" && (
-                <PeriodLogForm onSave={() => handleLogSave("Period")} onSkip={() => setActiveLog(null)} />
+                <PeriodLogForm selectedDate={selectedDate} onSave={() => handleLogSave("Period")} onSkip={() => setActiveLog(null)} />
               )}
               {activeLog === "symptoms" && (
-                <SymptomLogForm onSave={() => handleLogSave("Symptoms")} onSkip={() => setActiveLog(null)} />
+                <SymptomLogForm selectedDate={selectedDate} onSave={() => handleLogSave("Symptoms")} onSkip={() => setActiveLog(null)} />
               )}
               {activeLog === "sleep" && (
-                <SleepLogForm onSave={() => handleLogSave("Sleep")} onSkip={() => setActiveLog(null)} />
+                <SleepLogForm selectedDate={selectedDate} onSave={() => handleLogSave("Sleep")} onSkip={() => setActiveLog(null)} />
               )}
               {activeLog === "mood" && (
-                <MoodLogForm onSave={() => handleLogSave("Mood")} onSkip={() => setActiveLog(null)} />
+                <MoodLogForm selectedDate={selectedDate} onSave={() => handleLogSave("Mood")} onSkip={() => setActiveLog(null)} />
               )}
               {activeLog === "journal" && (
-                <JournalForm onSave={() => handleLogSave("Journal entry")} onSkip={() => setActiveLog(null)} />
+                <JournalForm selectedDate={selectedDate} onSave={() => handleLogSave("Journal entry")} onSkip={() => setActiveLog(null)} />
               )}
             </motion.div>
           </motion.div>

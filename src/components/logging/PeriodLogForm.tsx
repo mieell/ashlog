@@ -6,6 +6,7 @@ import styles from "./logging.module.css";
 interface PeriodLogFormProps {
   onSave: () => void;
   onSkip: () => void;
+  selectedDate?: Date;
 }
 
 const FLOW_OPTIONS = [
@@ -15,7 +16,7 @@ const FLOW_OPTIONS = [
   { value: "heavy", label: "Heavy", emoji: "🩸🩸🩸" },
 ];
 
-export default function PeriodLogForm({ onSave, onSkip }: PeriodLogFormProps) {
+export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date() }: PeriodLogFormProps) {
   const [flow, setFlow] = useState("medium");
   const [clotting, setClotting] = useState(false);
   const [cramping, setCramping] = useState(0);
@@ -35,7 +36,7 @@ export default function PeriodLogForm({ onSave, onSkip }: PeriodLogFormProps) {
           clotting,
           cramping: cramping || null,
           notes: notes || null,
-          date: new Date().toISOString(),
+          date: selectedDate.toISOString(),
         }),
       });
       if (!res.ok) {

@@ -23,10 +23,13 @@ export default async function DashboardPage() {
   const userId = user.id;
 
   // Fetch real data for the dashboard
-  const lastPeriod = await prisma.periodLog.findFirst({
+  const periodLogs = await prisma.periodLog.findMany({
     where: { userId },
     orderBy: { date: "desc" },
+    take: 100, // Fetch up to 100 logs for the calendar history
   });
+
+  const lastPeriod = periodLogs.length > 0 ? periodLogs[0] : null;
 
   const lastSleep = await prisma.sleepLog.findFirst({
     where: { userId },
@@ -53,6 +56,7 @@ export default async function DashboardPage() {
   return (
     <DashboardClient 
       user={user} 
+      periodLogs={periodLogs}
       lastPeriod={lastPeriod} 
       lastSleep={lastSleep} 
       lastMood={lastMood} 

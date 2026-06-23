@@ -6,6 +6,7 @@ import styles from "./logging.module.css";
 interface MoodLogFormProps {
   onSave: () => void;
   onSkip: () => void;
+  selectedDate?: Date;
 }
 
 const MOOD_OPTIONS = [
@@ -19,7 +20,7 @@ const MOOD_OPTIONS = [
   { value: "overwhelmed", emoji: "😵", label: "Overwhelmed" },
 ];
 
-export default function MoodLogForm({ onSave, onSkip }: MoodLogFormProps) {
+export default function MoodLogForm({ onSave, onSkip, selectedDate = new Date() }: MoodLogFormProps) {
   const [mood, setMood] = useState("");
   const [energy, setEnergy] = useState(3);
   const [stress, setStress] = useState(3);
@@ -39,7 +40,7 @@ export default function MoodLogForm({ onSave, onSkip }: MoodLogFormProps) {
           energy,
           stress,
           notes: notes || null,
-          date: new Date().toISOString(),
+          date: selectedDate.toISOString(),
         }),
       });
 

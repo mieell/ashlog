@@ -6,6 +6,7 @@ import styles from "./logging.module.css";
 interface SymptomLogFormProps {
   onSave: () => void;
   onSkip: () => void;
+  selectedDate?: Date;
 }
 
 const SYMPTOM_OPTIONS = [
@@ -26,7 +27,7 @@ const SYMPTOM_OPTIONS = [
 const SEVERITY_OPTIONS = ["Mild", "Moderate", "Severe"];
 const TIME_OPTIONS = ["Morning", "Afternoon", "Evening", "Night"];
 
-export default function SymptomLogForm({ onSave, onSkip }: SymptomLogFormProps) {
+export default function SymptomLogForm({ onSave, onSkip, selectedDate = new Date() }: SymptomLogFormProps) {
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [timeOfDay, setTimeOfDay] = useState("");
   const [notes, setNotes] = useState("");
@@ -64,7 +65,7 @@ export default function SymptomLogForm({ onSave, onSkip }: SymptomLogFormProps) 
           symptoms,
           timeOfDay: timeOfDay || null,
           notes: notes || null,
-          date: new Date().toISOString(),
+          date: selectedDate.toISOString(),
         }),
       });
 

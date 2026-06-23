@@ -6,12 +6,13 @@ import styles from "./logging.module.css";
 interface JournalFormProps {
   onSave: () => void;
   onSkip: () => void;
+  selectedDate?: Date;
 }
 
 const MOOD_TAGS = ["😊 Happy", "😌 Calm", "😰 Anxious", "😢 Sad", "😴 Tired"];
 const SYMPTOM_TAGS = ["Cramps", "Headache", "Bloating", "Fatigue", "Nausea"];
 
-export default function JournalForm({ onSave, onSkip }: JournalFormProps) {
+export default function JournalForm({ onSave, onSkip, selectedDate = new Date() }: JournalFormProps) {
   const [content, setContent] = useState("");
   const [moodTag, setMoodTag] = useState("");
   const [symptomTag, setSymptomTag] = useState("");
@@ -25,7 +26,7 @@ export default function JournalForm({ onSave, onSkip }: JournalFormProps) {
       const response = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, moodTag: moodTag || null, symptomTag: symptomTag || null, date: new Date().toISOString() }),
+        body: JSON.stringify({ content, moodTag: moodTag || null, symptomTag: symptomTag || null, date: selectedDate.toISOString() }),
       });
 
       if (!response.ok) {
