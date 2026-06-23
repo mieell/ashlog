@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { format, isSameDay } from "date-fns";
 import {
   Moon,
   Heart,
@@ -69,10 +70,15 @@ export default function DashboardClient({
   const [showAsh, setShowAsh] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [localPeriodLogs, setLocalPeriodLogs] = useState<any[]>(periodLogs);
   const router = useRouter();
 
+  useEffect(() => {
+    setLocalPeriodLogs(periodLogs);
+  }, [periodLogs]);
+
   // Find the most recent period log that occurred ON OR BEFORE the selected date
-  const relevantPeriodLog = periodLogs?.find(
+  const relevantPeriodLog = localPeriodLogs?.find(
     (log) => new Date(log.date).getTime() <= selectedDate.getTime()
   );
 
@@ -80,12 +86,65 @@ export default function DashboardClient({
     ? Math.floor((selectedDate.getTime() - new Date(relevantPeriodLog.date).getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
-  function handleLogSave(type: string) {
+  function handleLogSave(type: string, data?: any) {
+    if (type === "Period" && data) {
+      setLocalPeriodLogs((prev) => [data, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    }
     setActiveLog(null);
     setToastMessage(`${type} logged successfully ✓`);
     setTimeout(() => setToastMessage(null), 3000);
     router.refresh();
   }
+
+  // Flo-style: toggle a period day on/off directly from the calendar
+  const handleTogglePeriodDay = useCallback(async (date: Date) => {
+    const dateKey = format(date, "yyyy-MM-dd");
+    const existing = localPeriodLogs.find((log) => {
+      const logDate = new Date(log.date);
+      return isSameDay(logDate, date);
+    });
+
+    if (existing) {
+      // Remove the period day (optimistic)
+      setLocalPeriodLogs((prev) => prev.filter((l) => l.id !== existing.id));
+      setToastMessage(`Period removed for ${format(date, "MMM d")}`);
+      setTimeout(() => setToastMessage(null), 2500);
+      try {
+        await fetch(`/api/period?id=${existing.id}`, { method: "DELETE" });
+        router.refresh();
+      } catch {
+        // Rollback on failure
+        setLocalPeriodLogs((prev) => [...prev, existing].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        setToastMessage("Failed to remove — try again");
+        setTimeout(() => setToastMessage(null), 3000);
+      }
+    } else {
+      // Add the period day (optimistic)
+      const tempLog = { id: `temp-${dateKey}`, date: date.toISOString(), flow: "medium", clotting: false };
+      setLocalPeriodLogs((prev) => [...prev, tempLog].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      setToastMessage(`Period marked for ${format(date, "MMM d")} 🩸`);
+      setTimeout(() => setToastMessage(null), 2500);
+      try {
+        const res = await fetch("/api/period", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ date: date.toISOString(), flow: "medium" }),
+        });
+        if (res.ok) {
+          const saved = await res.json();
+          // Replace temp with real
+          setLocalPeriodLogs((prev) =>
+            prev.map((l) => (l.id === tempLog.id ? saved : l))
+          );
+        }
+        router.refresh();
+      } catch {
+        setLocalPeriodLogs((prev) => prev.filter((l) => l.id !== tempLog.id));
+        setToastMessage("Failed to log — try again");
+        setTimeout(() => setToastMessage(null), 3000);
+      }
+    }
+  }, [localPeriodLogs, router]);
 
   return (
     <div className={styles.dashboard}>
@@ -143,7 +202,8 @@ export default function DashboardClient({
           <CalendarWidget 
             selectedDate={selectedDate} 
             onSelectDate={setSelectedDate} 
-            periodLogs={periodLogs} 
+            periodLogs={localPeriodLogs}
+            onTogglePeriodDay={handleTogglePeriodDay}
           />
         </motion.section>
 
@@ -499,7 +559,7 @@ export default function DashboardClient({
               </div>
 
               {activeLog === "period" && (
-                <PeriodLogForm selectedDate={selectedDate} onSave={() => handleLogSave("Period")} onSkip={() => setActiveLog(null)} />
+                <PeriodLogForm selectedDate={selectedDate} onSave={(data) => handleLogSave("Period", data)} onSkip={() => setActiveLog(null)} />
               )}
               {activeLog === "symptoms" && (
                 <SymptomLogForm selectedDate={selectedDate} onSave={() => handleLogSave("Symptoms")} onSkip={() => setActiveLog(null)} />

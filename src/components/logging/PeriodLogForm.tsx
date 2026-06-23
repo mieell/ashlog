@@ -4,7 +4,7 @@ import { useState } from "react";
 import styles from "./logging.module.css";
 
 interface PeriodLogFormProps {
-  onSave: () => void;
+  onSave: (data?: any) => void;
   onSkip: () => void;
   selectedDate?: Date;
 }
@@ -39,11 +39,11 @@ export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date(
           date: selectedDate.toISOString(),
         }),
       });
+      const resData = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Save failed (${res.status})`);
+        throw new Error(resData.error || `Save failed (${res.status})`);
       }
-      onSave();
+      onSave(resData);
     } catch (err: any) {
       setError(err.message || "Failed to save. Please try again.");
       setSaving(false);

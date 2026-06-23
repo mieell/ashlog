@@ -11,7 +11,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 .monthTitle {
@@ -35,7 +35,7 @@
 }
 
 .expandButton:hover {
-  background: var(--color-surface-hover);
+  background: var(--color-surface-subtle);
   color: var(--color-text);
 }
 
@@ -43,7 +43,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 .currentMonthLabel {
@@ -67,13 +67,41 @@
 }
 
 .iconButton:hover {
-  background: var(--color-surface-hover);
+  background: var(--color-surface-subtle);
 }
 
+/* ── Period Duration Summary ── */
+.periodSummary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.periodSummary strong {
+  font-weight: 700;
+}
+
+/* ── Tap Hint ── */
+.tapHint {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: var(--space-3);
+  opacity: 0.7;
+}
+
+/* ── Days Grid ── */
 .daysGrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: var(--space-2);
+  gap: 2px;
 }
 
 .dayHeader {
@@ -96,13 +124,14 @@
   border: 2px solid transparent;
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   color: var(--color-text);
   padding: 0;
+  font-family: inherit;
 }
 
 .dayCell:hover {
-  background: var(--color-surface-hover);
+  background: var(--color-surface-subtle);
 }
 
 .dayNumber {
@@ -111,13 +140,15 @@
   z-index: 1;
 }
 
+/* ── Selected state ── */
 .dayCell.selected {
   background: var(--color-text);
-  color: var(--color-surface);
+  color: var(--color-bg);
+  border-color: var(--color-text);
 }
 
 .dayCell.today:not(.selected) {
-  border-color: var(--color-border);
+  border-color: var(--color-primary);
   color: var(--color-primary);
   font-weight: 700;
 }
@@ -126,15 +157,42 @@
   opacity: 0.3;
 }
 
-.periodIndicator {
-  position: absolute;
-  bottom: 2px;
-  color: var(--color-danger);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ── Period day styles (Flo-like red highlight) ── */
+.dayCell.periodDay {
+  background: var(--color-danger);
+  color: #fff;
+  border-color: var(--color-danger);
 }
 
-.dayCell.selected .periodIndicator {
-  color: var(--color-danger-light);
+.dayCell.periodDay:hover {
+  background: var(--color-danger-dark);
+  border-color: var(--color-danger-dark);
+}
+
+/* Range shape: single day = circle */
+.dayCell.periodSingle {
+  border-radius: var(--radius-full);
+}
+
+/* Range shape: start of range = rounded left, flat right */
+.dayCell.periodStart {
+  border-radius: var(--radius-full) 4px 4px var(--radius-full);
+}
+
+/* Range shape: middle of range = flat sides */
+.dayCell.periodMid {
+  border-radius: 4px;
+}
+
+/* Range shape: end of range = flat left, rounded right */
+.dayCell.periodEnd {
+  border-radius: 4px var(--radius-full) var(--radius-full) 4px;
+}
+
+/* Selected + period combo */
+.dayCell.selected.periodDay {
+  background: var(--color-danger-dark);
+  color: #fff;
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 2px var(--color-danger);
 }
