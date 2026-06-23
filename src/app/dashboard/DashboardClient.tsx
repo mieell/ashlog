@@ -82,8 +82,12 @@ export default function DashboardClient({
     (log) => new Date(log.date).getTime() <= selectedDate.getTime()
   );
 
+  const existingPeriodLogForDate = localPeriodLogs?.find(
+    (log) => isSameDay(new Date(log.date), selectedDate)
+  );
+
   const activeDaysSincePeriod = relevantPeriodLog
-    ? Math.floor((selectedDate.getTime() - new Date(relevantPeriodLog.date).getTime()) / (1000 * 60 * 60 * 24))
+    ? Math.floor((selectedDate.getTime() - new Date(relevantPeriodLog.date).getTime()) / (1000 * 60 * 60 * 24)) + 1
     : null;
 
   function handleLogSave(type: string, data?: any) {
@@ -250,7 +254,7 @@ export default function DashboardClient({
                     onClick={() => setActiveLog("period")}
                   >
                     <Droplets size={24} />
-                    <span>Log Period</span>
+                    <span>{existingPeriodLogForDate ? "Edit Period" : "Log Period"}</span>
                   </button>
                   <span className={styles.emptyCycleLabel}>To get predictions</span>
                 </div>
@@ -559,7 +563,13 @@ export default function DashboardClient({
               </div>
 
               {activeLog === "period" && (
-                <PeriodLogForm selectedDate={selectedDate} onSave={(data) => handleLogSave("Period", data)} onSkip={() => setActiveLog(null)} />
+                <PeriodLogForm 
+                  selectedDate={selectedDate} 
+                  existingLog={existingPeriodLogForDate}
+                  onDelete={() => handleTogglePeriodDay(selectedDate)}
+                  onSave={(data) => handleLogSave(existingPeriodLogForDate ? "Period updated" : "Period", data)} 
+                  onSkip={() => setActiveLog(null)} 
+                />
               )}
               {activeLog === "symptoms" && (
                 <SymptomLogForm selectedDate={selectedDate} onSave={() => handleLogSave("Symptoms")} onSkip={() => setActiveLog(null)} />

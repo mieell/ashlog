@@ -670,8 +670,8 @@
   bottom: var(--space-20);
   left: 50%;
   transform: translateX(-50%);
-  background: var(--color-text);
-  color: var(--color-bg);
+  background: var(--color-primary);
+  color: white;
   padding: var(--space-3) var(--space-6);
   border-radius: var(--radius-full);
   font-size: var(--text-sm);

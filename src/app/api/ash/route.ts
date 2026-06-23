@@ -5,12 +5,10 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    let context = null;
+    let context: any = null;
 
     if (session?.user?.email) {
       const user = await prisma.user.findUnique({
@@ -41,94 +39,80 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const messages = body.messages || [];
-    
-    // Extract question from messages array or direct question field
+
+    // Extract the latest user question
     let question = "";
-    if (messages && Array.isArray(messages) && messages.length > 0) {
+    if (Array.isArray(messages) && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       question = lastMessage.content || "";
     } else {
       question = body.question || "";
     }
 
-    // Fallback if no API key is configured
-    if (!process.env.GEMINI_API_KEY) {
-      console.warn("GEMINI_API_KEY is missing. Falling back to mock response.");
-      const mockContext = {
-        lastPeriod: context?.lastPeriod,
-        lastSleep: context?.recentSleep?.[0],
-        lastMood: context?.recentMood?.[0],
-      };
-      const response = getAshResponse(question, mockContext);
-
-      return NextResponse.json({
-        message: response,
+    // Mock fallback helper
+    const mockContext = {
+      lastPeriod: context?.lastPeriod,
+      lastSleep: context?.recentSleep?.[0],
+      lastMood: context?.recentMood?.[0],
+    };
+    const getMockResponse = () =>
+      NextResponse.json({
+        message: getAshResponse(question, mockContext),
         disclaimer:
           "I provide educational wellness information and not medical advice. For health concerns, please consult a qualified healthcare provider.",
       });
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === "your_api_key_here") {
+      console.warn("GEMINI_API_KEY missing — using mock.");
+      return getMockResponse();
     }
 
-    const systemPrompt = `You are Ash, a compassionate, intelligent wellness assistant for a women's health tracker called AshLog. 
+    // ── Build Gemini request ──
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    const systemPrompt = `You are Ash, a compassionate and intelligent wellness assistant for a women's health tracker called AshLog.
 You help the user understand their menstrual cycle, sleep patterns, and mood.
-Keep responses concise, empathetic, and actionable. Do not give direct medical diagnoses.
-Always add a gentle, encouraging tone.
+Keep responses concise (2-4 sentences), empathetic, and actionable.
+Do not give direct medical diagnoses. Always add a gentle, encouraging tone.
+If the user says hi or greets you, respond warmly and ask how they are feeling today.
 
 Context about the user:
 Name: ${context?.userName || "User"}
 Last Period Log: ${context?.lastPeriod ? JSON.stringify(context.lastPeriod) : "None"}
-Recent Sleep Logs (last 7): ${context?.recentSleep ? JSON.stringify(context.recentSleep) : "None"}
-Recent Mood Logs (last 7): ${context?.recentMood ? JSON.stringify(context.recentMood) : "None"}
+Recent Sleep (last 7): ${context?.recentSleep ? JSON.stringify(context.recentSleep) : "None"}
+Recent Mood (last 7): ${context?.recentMood ? JSON.stringify(context.recentMood) : "None"}
 
-When interpreting their data, be conversational and helpful. Focus on the relationships between their cycle, sleep, and mood.`;
+Be conversational and helpful. Focus on the relationships between their cycle, sleep, and mood.`;
 
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
       systemInstruction: systemPrompt,
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 500,
-      }
+        maxOutputTokens: 400,
+      },
     });
 
-    let normalizedHistory: any[] = [];
-    const rawHistory = messages.slice(0, -1).map((m: any) => ({
-      role: m.role === "user" ? "user" : "model",
-      parts: [{ text: m.content || "" }],
-    }));
+    // ── Simple single-turn call (most reliable) ──
+    try {
+      const result = await model.generateContent(question);
+      const responseText = result.response.text();
 
-    for (const msg of rawHistory) {
-      if (normalizedHistory.length > 0 && normalizedHistory[normalizedHistory.length - 1].role === msg.role) {
-        normalizedHistory[normalizedHistory.length - 1].parts[0].text += "\n" + msg.parts[0].text;
-      } else {
-        normalizedHistory.push(msg);
-      }
-    }
-
-    if (normalizedHistory.length > 0 && normalizedHistory[0].role === "model") {
-      normalizedHistory.unshift({
-        role: "user",
-        parts: [{ text: "Hello" }],
+      return NextResponse.json({
+        message: responseText,
+        disclaimer:
+          "I provide educational wellness information and not medical advice. For health concerns, please consult a qualified healthcare provider.",
       });
+    } catch (geminiError: any) {
+      console.error("Gemini API Error:", geminiError?.message || geminiError);
+      return getMockResponse();
     }
-
-    const chat = model.startChat({
-      history: normalizedHistory,
-    });
-
-    const result = await chat.sendMessage(question);
-    const responseText = result.response.text();
-
-    return NextResponse.json({
-      message: responseText,
-      disclaimer:
-        "I provide educational wellness information and not medical advice. For health concerns, please consult a qualified healthcare provider.",
-    });
-  } catch (error) {
-    console.error("Ash API Error:", error);
+  } catch (error: any) {
+    console.error("Ash API Fatal Error:", error?.message || error);
     return NextResponse.json(
       { error: "Failed to process your question" },
       { status: 500 }
     );
   }
 }
-

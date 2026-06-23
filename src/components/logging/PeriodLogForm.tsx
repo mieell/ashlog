@@ -1,12 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  addMonths,
+  subMonths,
+  isSameMonth,
+  isSameDay,
+  isAfter,
+} from "date-fns";
 import styles from "./logging.module.css";
 
 interface PeriodLogFormProps {
   onSave: (data?: any) => void;
   onSkip: () => void;
   selectedDate?: Date;
+  existingLog?: any;
+  onDelete?: () => void;
 }
 
 const FLOW_OPTIONS = [
@@ -16,13 +31,23 @@ const FLOW_OPTIONS = [
   { value: "heavy", label: "Heavy", emoji: "🩸🩸🩸" },
 ];
 
-export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date() }: PeriodLogFormProps) {
-  const [flow, setFlow] = useState("medium");
-  const [clotting, setClotting] = useState(false);
-  const [cramping, setCramping] = useState(0);
-  const [notes, setNotes] = useState("");
+export default function PeriodLogForm({
+  onSave,
+  onSkip,
+  selectedDate: initialDate = new Date(),
+  existingLog,
+  onDelete,
+}: PeriodLogFormProps) {
+  const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(initialDate);
+  const [flow, setFlow] = useState(existingLog?.flow || "medium");
+  const [clotting, setClotting] = useState(existingLog?.clotting || false);
+  const [cramping, setCramping] = useState(existingLog?.cramping || 0);
+  const [notes, setNotes] = useState(existingLog?.notes || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const today = new Date();
 
   async function handleSave() {
     setSaving(true);
@@ -50,11 +75,103 @@ export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date(
     }
   }
 
+  // ── Build calendar grid ──
+  const monthStart = startOfMonth(calendarMonth);
+  const monthEnd = endOfMonth(calendarMonth);
+  const calStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+  const calEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+
+  const weeks: Date[][] = [];
+  let day = calStart;
+  while (day <= calEnd) {
+    const week: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      week.push(day);
+      day = addDays(day, 1);
+    }
+    weeks.push(week);
+  }
+
   return (
     <div className={styles.form}>
       {error && <div className={styles.formError}>{error}</div>}
 
-      {/* Flow Selection — primary required field */}
+      {/* ── Inline Calendar Picker ── */}
+      <div className={styles.fieldGroup}>
+        <label className={styles.fieldLabel}>Period Date</label>
+        <div className={styles.miniCalendar}>
+          {/* Month navigation */}
+          <div className={styles.miniCalHeader}>
+            <button
+              type="button"
+              className={styles.miniCalNav}
+              onClick={() => setCalendarMonth(subMonths(calendarMonth, 1))}
+            >
+              ‹
+            </button>
+            <span className={styles.miniCalMonth}>
+              {format(calendarMonth, "MMMM yyyy")}
+            </span>
+            <button
+              type="button"
+              className={styles.miniCalNav}
+              onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))}
+            >
+              ›
+            </button>
+          </div>
+
+          {/* Day-of-week headers */}
+          <div className={styles.miniCalDayNames}>
+            {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+              <span key={i} className={styles.miniCalDayName}>
+                {d}
+              </span>
+            ))}
+          </div>
+
+          {/* Day grid */}
+          <div className={styles.miniCalGrid}>
+            {weeks.map((week, wi) =>
+              week.map((d, di) => {
+                const inMonth = isSameMonth(d, calendarMonth);
+                const isSelected = isSameDay(d, selectedDate);
+                const isToday = isSameDay(d, today);
+                const isFuture = isAfter(d, today);
+                return (
+                  <button
+                    key={`${wi}-${di}`}
+                    type="button"
+                    disabled={isFuture}
+                    className={[
+                      styles.miniCalDay,
+                      !inMonth ? styles.miniCalDayOther : "",
+                      isSelected ? styles.miniCalDaySelected : "",
+                      isToday && !isSelected ? styles.miniCalDayToday : "",
+                      isFuture ? styles.miniCalDayDisabled : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    onClick={() => {
+                      if (!isFuture) setSelectedDate(d);
+                    }}
+                  >
+                    {format(d, "d")}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Selected date badge ── */}
+      <div className={styles.selectedDateBadge}>
+        🗓 Logging for{" "}
+        <strong>{format(selectedDate, "EEEE, MMM d, yyyy")}</strong>
+      </div>
+
+      {/* ── Flow Selection ── */}
       <div className={styles.fieldGroup}>
         <label className={styles.fieldLabel}>Flow Intensity</label>
         <div className={styles.chipGrid}>
@@ -72,7 +189,7 @@ export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date(
         </div>
       </div>
 
-      {/* Clotting */}
+      {/* ── Clotting ── */}
       <div className={styles.fieldGroup}>
         <label className={styles.fieldLabel}>Clotting</label>
         <div className={styles.chipGrid}>
@@ -93,7 +210,7 @@ export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date(
         </div>
       </div>
 
-      {/* Cramping */}
+      {/* ── Cramping ── */}
       <div className={styles.fieldGroup}>
         <label className={styles.fieldLabel}>
           Cramping Intensity
@@ -105,7 +222,9 @@ export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date(
           {[1, 2, 3, 4, 5].map((val) => (
             <button
               key={val}
-              className={`${styles.sliderDot} ${cramping >= val ? styles.sliderDotActive : ""}`}
+              className={`${styles.sliderDot} ${
+                cramping >= val ? styles.sliderDotActive : ""
+              }`}
               onClick={() => setCramping(val === cramping ? 0 : val)}
               type="button"
             >
@@ -115,7 +234,7 @@ export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date(
         </div>
       </div>
 
-      {/* Notes */}
+      {/* ── Notes ── */}
       <div className={styles.fieldGroup}>
         <label className={styles.fieldLabel}>Notes (optional)</label>
         <textarea
@@ -127,18 +246,42 @@ export default function PeriodLogForm({ onSave, onSkip, selectedDate = new Date(
         />
       </div>
 
-      {/* Actions */}
-      <div className={styles.formActions}>
-        <button className="btn btn-ghost" onClick={onSkip} type="button">
-          Skip
-        </button>
+      {/* ── Actions ── */}
+      <div
+        className={styles.formActions}
+        style={{
+          justifyContent: existingLog ? "space-between" : "flex-end",
+          width: "100%",
+        }}
+      >
+        {existingLog && onDelete ? (
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              onDelete();
+              onSkip();
+            }}
+            type="button"
+            style={{ color: "var(--color-danger)" }}
+          >
+            Remove Period
+          </button>
+        ) : (
+          <button className="btn btn-ghost" onClick={onSkip} type="button">
+            Skip
+          </button>
+        )}
         <button
           className="btn btn-primary"
           onClick={handleSave}
           disabled={saving}
           type="button"
         >
-          {saving ? "Saving..." : "Log Period"}
+          {saving
+            ? "Saving..."
+            : existingLog
+            ? "Update Period"
+            : "Log Period"}
         </button>
       </div>
     </div>

@@ -233,6 +233,149 @@
   gap: var(--space-2);
 }
 
+/* ── Mini Calendar (Period Log Date Picker) ── */
+.miniCalendar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  user-select: none;
+}
+
+.miniCalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.miniCalMonth {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.miniCalNav {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xl);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.miniCalNav:hover {
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.miniCalDayNames {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  margin-bottom: var(--space-1);
+}
+
+.miniCalDayName {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--space-1) 0;
+}
+
+.miniCalGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.miniCalDay {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+}
+
+.miniCalDay:hover:not(:disabled) {
+  background: var(--color-primary-lighter);
+}
+
+.miniCalDayOther {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+}
+
+.miniCalDayToday {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.miniCalDayToday::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.miniCalDaySelected {
+  background: var(--color-primary) !important;
+  color: white !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(139, 107, 255, 0.4);
+}
+
+.miniCalDayDisabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* ── Selected Date Badge ── */
+.selectedDateBadge {
+  background: var(--color-primary-lighter);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  border: 1px solid rgba(139, 107, 255, 0.2);
+}
+
+.selectedDateBadge strong {
+  color: var(--color-primary);
+}
+
+.formError {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
 /* ── Form Actions ── */
 .formActions {
   display: flex;
