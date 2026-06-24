@@ -157,8 +157,7 @@ export default function DashboardClient({
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link href="/" className={styles.logo}>
-            <Image src="/ashlog.png" alt="AshLog Logo" width={32} height={32} />
-            AshLog
+            <Image src="/ashlog.png" alt="AshLog Logo" width={140} height={40} style={{ objectFit: "contain" }} />
           </Link>
           <div className={styles.headerRight}>
             <div style={{ marginRight: "0.5rem" }}>

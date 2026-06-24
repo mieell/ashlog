@@ -39,8 +39,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <Link href="/" className={styles.logo}>
-            <Image src="/ashlog.png" alt="AshLog Logo" width={32} height={32} />
-            AshLog
+            <Image src="/ashlog.png" alt="AshLog Logo" width={140} height={40} style={{ objectFit: "contain" }} />
           </Link>
           <div className={styles.navLinks}>
             <a href="#features">Features</a>
@@ -369,7 +368,7 @@ export default function LandingPage() {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
-            <Image src="/ashlog.png" alt="AshLog Logo" width={24} height={24} /> AshLog
+            <Image src="/ashlog.png" alt="AshLog Logo" width={120} height={32} style={{ objectFit: "contain" }} />
           </div>
           <p className={styles.footerDisclaimer}>
             AshLog provides wellness information for educational purposes only.
