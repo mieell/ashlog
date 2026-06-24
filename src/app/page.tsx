@@ -14,6 +14,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import styles from "./page.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -38,7 +39,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navInner}>
           <Link href="/" className={styles.logo}>
-            <span className={styles.logoIcon}>✦</span>
+            <Image src="/ashlog.png" alt="AshLog Logo" width={32} height={32} />
             AshLog
           </Link>
           <div className={styles.navLinks}>
@@ -368,7 +369,7 @@ export default function LandingPage() {
       <footer className={styles.footer}>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
-            <span className={styles.logoIcon}>✦</span> AshLog
+            <Image src="/ashlog.png" alt="AshLog Logo" width={24} height={24} /> AshLog
           </div>
           <p className={styles.footerDisclaimer}>
             AshLog provides wellness information for educational purposes only.

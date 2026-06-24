@@ -20,6 +20,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import styles from "./dashboard.module.css";
 
@@ -156,7 +157,7 @@ export default function DashboardClient({
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link href="/" className={styles.logo}>
-            <span className={styles.logoIcon}>✦</span>
+            <Image src="/ashlog.png" alt="AshLog Logo" width={32} height={32} />
             AshLog
           </Link>
           <div className={styles.headerRight}>

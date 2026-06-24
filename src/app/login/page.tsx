@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import styles from "../auth.module.css";
 
@@ -39,7 +40,7 @@ export default function LoginPage() {
       <div className={styles.card}>
         <div className={styles.header}>
           <Link href="/" className={styles.logo}>
-            <span className={styles.logoIcon}>✦</span>
+            <Image src="/ashlog.png" alt="AshLog Logo" width={32} height={32} />
             AshLog
           </Link>
           <p className={styles.subtitle}>Welcome back to your private space</p>
