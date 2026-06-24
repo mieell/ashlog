@@ -11,29 +11,33 @@ export async function POST(request: NextRequest) {
     let context: any = null;
 
     if (session?.user?.email) {
-      const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
-      });
-
-      if (user) {
-        const lastPeriod = await prisma.periodLog.findFirst({
-          where: { userId: user.id },
-          orderBy: { date: "desc" },
+      try {
+        const user = await prisma.user.findUnique({
+          where: { email: session.user.email },
         });
 
-        const recentSleep = await prisma.sleepLog.findMany({
-          where: { userId: user.id },
-          orderBy: { date: "desc" },
-          take: 7,
-        });
+        if (user) {
+          const lastPeriod = await prisma.periodLog.findFirst({
+            where: { userId: user.id },
+            orderBy: { date: "desc" },
+          });
 
-        const recentMood = await prisma.moodLog.findMany({
-          where: { userId: user.id },
-          orderBy: { date: "desc" },
-          take: 7,
-        });
+          const recentSleep = await prisma.sleepLog.findMany({
+            where: { userId: user.id },
+            orderBy: { date: "desc" },
+            take: 7,
+          });
 
-        context = { lastPeriod, recentSleep, recentMood, userName: user.name };
+          const recentMood = await prisma.moodLog.findMany({
+            where: { userId: user.id },
+            orderBy: { date: "desc" },
+            take: 7,
+          });
+
+          context = { lastPeriod, recentSleep, recentMood, userName: user.name };
+        }
+      } catch (dbError: any) {
+        console.warn("Database unavailable, proceeding without user context:", dbError?.message);
       }
     }
 
