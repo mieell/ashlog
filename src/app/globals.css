@@ -105,10 +105,9 @@
   --duration-normal: 300ms;
   --duration-slow: 500ms;
 
-  /* Layout */
   --max-width: 1200px;
   --max-width-narrow: 800px;
-  --header-height: 72px;
+  --header-height: 100px;
 }
 
 .dark {

@@ -40,7 +40,7 @@ export default function LoginPage() {
       <div className={styles.card}>
         <div className={styles.header}>
           <Link href="/" className={styles.logo}>
-            <Image src="/ashlog.png" alt="AshLog Logo" width={220} height={60} style={{ objectFit: "contain" }} />
+            <Image src="/ashlog.png" alt="AshLog Logo" width={400} height={100} style={{ objectFit: "contain" }} priority />
           </Link>
           <p className={styles.subtitle}>Welcome back to your private space</p>
         </div>
