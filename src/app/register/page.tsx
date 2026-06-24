@@ -57,7 +57,7 @@ export default function RegisterPage() {
       <div className={styles.card}>
         <div className={styles.header}>
           <Link href="/" className={styles.logo}>
-            <Image src="/ashlog.png" alt="AshLog Logo" width={140} height={40} style={{ objectFit: "contain" }} />
+            <Image src="/ashlog.png" alt="AshLog Logo" width={220} height={60} style={{ objectFit: "contain" }} />
           </Link>
           <p className={styles.subtitle}>Create your secure, private account</p>
         </div>
